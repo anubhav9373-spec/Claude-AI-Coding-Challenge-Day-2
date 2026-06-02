@@ -1,0 +1,32 @@
+Day 3 - Role-Based Prompting
+
+Today I learned about Role-Based Prompting.
+It means assigning a specific role to AI before asking a question.
+
+Question Used:-
+
+How can I build an AI-powered study assistant for students?
+
+Without Role:
+
+The response was general and focused on basic ideas for building a study assistant.
+
+Founder Role:
+
+The response focused on business aspects such as target audience, product strategy, market opportunities, and growth.
+
+Developer Role:
+
+The response focused on technical implementation, including tools, frameworks, APIs, database requirements, and development steps.
+
+Key Learnings:-
+
+- The same question can generate different responses based on the assigned role.
+- Founder prompts provide business-oriented insights.
+- Developer prompts provide technical and implementation-focused guidance.
+- Role-based prompting helps get more relevant and specialized answers.
+
+Conclusion:-
+
+This activity helped me understand the importance of assigning roles when interacting with AI. 
+Different roles produce different perspectives, making the responses more useful for specific goals.
