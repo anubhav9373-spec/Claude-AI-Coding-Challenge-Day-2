@@ -1,0 +1,41 @@
+Day 5 – Context Engineering
+
+What I Learned:-
+
+Today I learned that Context Engineering is about providing relevant information before asking AI to perform a task.
+
+I compared two prompts:
+
+Prompt A:
+A generic request for a 30-day learning roadmap.
+
+Prompt B:
+The same request but with personal details such as current situation, skills, goal, available time, experience level, and learning style.
+
+Observation:-
+
+The roadmap generated using Prompt A was generic and suitable for a broad audience.
+
+The roadmap generated using Prompt B was much more personalized.
+It considered my background, learning goals, and available time, making the plan more realistic and actionable.
+
+Key Learning:-
+
+Better context leads to better AI outputs.
+
+Comparison:-
+
+Prompt A Output:
+- Generic roadmap
+- Broad recommendations
+- Less personalized
+
+Prompt B Output:
+- Customized roadmap
+- Goal-focused recommendations
+- More practical and realistic
+
+Conclusion:-
+
+Context Engineering significantly improves AI responses by reducing assumptions and providing relevant information. 
+The personalized roadmap was more useful and easier to follow than the generic roadmap.
