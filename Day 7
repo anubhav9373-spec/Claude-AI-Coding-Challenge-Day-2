@@ -1,4 +1,6 @@
-# Day 7 – Claude Model Selection & Reasoning Effort
+# Day 7 
+
+##Claude Model Selection & Reasoning Effort
 
 ## What I Learned
 
@@ -55,15 +57,19 @@ I would use Opus for:
 ## Reasoning Effort Recommendations
 
 ### Low
+
 For simple questions and quick responses.
 
 ### Standard
+
 For daily learning, coding, and productivity tasks.
 
 ### High
+
 For project planning, research, and detailed analysis.
 
 ### Max
+
 For difficult problems that require deep thinking and multiple steps.
 
 ---
@@ -71,7 +77,7 @@ For difficult problems that require deep thinking and multiple steps.
 ## My Daily Workflow
 
 | Task | Model | Effort |
-|--------|--------|--------|
+|------|--------|--------|
 | Coding | Sonnet | Standard |
 | Debugging | Sonnet | High |
 | AI Learning | Sonnet | Standard |
@@ -93,7 +99,6 @@ For difficult problems that require deep thinking and multiple steps.
 
 ## Conclusion
 
-The biggest lesson from Day 7 was that using AI effectively is not only about writing good prompts. 
-Choosing the right model and reasoning level can make a huge difference in the quality of results.
+The biggest lesson from Day 7 was that using AI effectively is not only about writing good prompts. Choosing the right model and reasoning level can make a huge difference in the quality of results.
 
 #60DayClaudeChallenge
