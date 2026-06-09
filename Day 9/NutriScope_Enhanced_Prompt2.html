@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NutriScope Enhanced</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{margin:0;background:#0b1220;color:#e2e8f0;font-family:Inter,Arial,sans-serif}
+.container{max-width:1400px;margin:auto;padding:20px}
+.card{background:rgba(30,41,59,.9);border-radius:18px;padding:16px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+input,select,button{padding:10px;border-radius:10px;border:none}
+input,select{background:#334155;color:#fff;width:100%}
+button{background:#6366f1;color:#fff}
+table{width:100%;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #334155}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>NutriScope Enhanced</h1>
+
+<div class="card">
+<h2>Profile & Targets</h2>
+<div class="grid g2">
+<input id="age" placeholder="Age" type="number">
+<select id="gender"><option>Male</option><option>Female</option></select>
+<input id="height" placeholder="Height cm" type="number">
+<input id="weight" placeholder="Weight kg" type="number">
+<select id="activity"><option value="1.2">Sedentary</option><option value="1.55">Moderate</option><option value="1.725">Active</option></select>
+<select id="diet"><option>Vegetarian</option><option>Eggetarian</option><option>Non-Vegetarian</option></select>
+</div>
+<div id="targets"></div>
+</div>
+
+<div class="card">
+<h2>CSV Upload</h2>
+<input type="file" id="csvFile">
+</div>
+
+<div class="card">
+<h2>Food Logging (60+ Foods)</h2>
+<select id="food"></select>
+<input id="qty" type="number" value="100">
+<button onclick="addFood()">Add Food</button>
+<table><tbody id="log"></tbody></table>
+</div>
+
+<div class="grid g2">
+<div class="card"><canvas id="macroChart"></canvas></div>
+<div class="card"><canvas id="defChart"></canvas></div>
+</div>
+
+<div class="card"><h2>Risk Analysis</h2><div id="risk"></div></div>
+<div class="card"><h2>Recommendations</h2><div id="recs"></div></div>
+<div class="card"><h2>2-Day Meal Planner</h2><div id="planner"></div></div>
+<div class="card"><h2>Sources</h2>USDA FoodData Central · WHO · NIH</div>
+<div class="card"><h2>Disclaimer</h2>This application provides educational nutrition estimates only and is not medical advice.</div>
+</div>
+
+<script>
+const foods={
+Rice:[130,2.7,28,0.3],Roti:[120,4,24,1],Dal:[116,9,20,0.4],Paneer:[265,18,1,20],
+Curd:[98,3.5,4.7,4.3],Chana:[164,9,27,2.6],Rajma:[127,9,23,0.5],Banana:[89,1.1,23,0.3],
+Apple:[52,0.3,14,0.2],Milk:[61,3.2,5,3.3],Oats:[389,17,66,7],Bread:[265,9,49,3.2],
+Egg:[155,13,1.1,11],Chicken:[239,27,0,14],Fish:[206,22,0,12],Potato:[77,2,17,0.1],
+Poha:[130,2.6,25,0.5],Idli:[58,2,12,0.4],Dosa:[168,4,28,3.7],Spinach:[23,2.9,3.6,0.4],
+BrownRice:[123,2.6,25,1],Quinoa:[120,4.4,21,1.9],SweetPotato:[86,1.6,20,0.1],Tofu:[76,8,2,4],
+SoyChunks:[345,52,33,0.5],MoongDal:[105,7,19,0.4],MasoorDal:[116,9,20,0.4],BlackGram:[111,8,19,0.5],
+Peanuts:[567,26,16,49],Almonds:[579,21,22,50],Walnuts:[654,15,14,65],Cashews:[553,18,30,44],
+Dates:[282,2.5,75,0.4],Orange:[47,1,12,0.1],Papaya:[43,0.5,11,0.3],Guava:[68,2.6,14,1],
+Mango:[60,0.8,15,0.4],Pomegranate:[83,1.7,19,1.2],Watermelon:[30,0.6,8,0.2],Cucumber:[15,0.7,3.6,0.1],
+Tomato:[18,0.9,3.9,0.2],Carrot:[41,0.9,10,0.2],Broccoli:[34,2.8,7,0.4],Cauliflower:[25,2,5,0.3],
+Cabbage:[25,1.3,6,0.1],GreenPeas:[81,5,14,0.4],Mushroom:[22,3.1,3,0.3],Capsicum:[31,1,6,0.3],
+Onion:[40,1.1,9,0.1],Beetroot:[43,1.6,10,0.2],LentilSoup:[90,5,15,1],Sambar:[70,3,10,2],
+Upma:[210,5,35,6],Khichdi:[140,5,25,2],Paratha:[260,6,35,10],Chapati:[120,4,24,1],
+GreekYogurt:[97,10,4,5],Cheese:[402,25,1,33],Salmon:[208,20,0,13],Tuna:[132,29,0,1]
+};
+
+Object.keys(foods).forEach(f=>food.innerHTML+=`<option>${f}</option>`);
+let entries=JSON.parse(localStorage.getItem('entries')||'[]');
+
+function addFood(){entries.push({food:food.value,qty:+qty.value});save();render();}
+function save(){localStorage.setItem('entries',JSON.stringify(entries));}
+function totals(){let t=[0,0,0,0];entries.forEach(e=>{let m=e.qty/100;foods[e.food].forEach((v,i)=>t[i]+=v*m)});return t}
+function calcTargets(){
+let w=+weight.value||70,h=+height.value||170,a=+age.value||25;
+let bmr=(gender.value==="Male")?(10*w+6.25*h-5*a+5):(10*w+6.25*h-5*a-161);
+let tdee=Math.round(bmr*(+activity.value||1.2));
+targets.innerHTML=`BMR: ${Math.round(bmr)} | TDEE: ${tdee} | Protein: ${Math.round(w*1.6)}g`;
+}
+['age','height','weight','gender','activity'].forEach(id=>document.getElementById(id).oninput=calcTargets);
+
+function render(){
+log.innerHTML=entries.map((e,i)=>`<tr><td contenteditable onblur="entries[${i}].qty=this.innerText">${e.food}</td><td>${e.qty}</td><td><button onclick="entries.splice(${i},1);save();render()">Delete</button></td></tr>`).join('');
+let t=totals();
+risk.innerHTML=(t[1]<50?"High Protein Deficiency Risk<br>":"")+"Monitor fiber and micronutrients.";
+recs.innerHTML=diet.value==="Vegetarian"?"Add tofu, soy chunks, paneer":"Add eggs, fish, chicken";
+planner.innerHTML="Day1: Oats, Dal, Rice, Paneer<br>Day2: Idli, Rajma, Chapati, Curd";
+
+if(window.c1)c1.destroy();
+c1=new Chart(macroChart,{type:'pie',data:{labels:['Protein','Carbs','Fat'],datasets:[{data:[t[1],t[2],t[3]]}]}});
+if(window.c2)c2.destroy();
+c2=new Chart(defChart,{type:'bar',data:{labels:['Protein','Fiber','Iron','Vit D','B12'],datasets:[{data:[80-t[1],30,18,15,2.4]}]}});
+}
+document.getElementById('csvFile').addEventListener('change',e=>{
+const f=e.target.files[0]; if(!f)return;
+const r=new FileReader();
+r.onload=()=>{r.result.split('\n').slice(1).forEach(line=>{let [foodName,q]=line.split(','); if(foods[foodName]) entries.push({food:foodName,qty:+q||100});}); save(); render();};
+r.readAsText(f);
+});
+calcTargets(); render();
+</script></body></html>

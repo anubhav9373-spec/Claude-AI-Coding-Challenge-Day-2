@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NutriScope</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{margin:0;background:#0f172a;color:#e2e8f0;font-family:Arial,sans-serif}
+.container{max-width:1200px;margin:auto;padding:20px}
+.card{background:#1e293b;border-radius:16px;padding:16px;margin-bottom:16px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+input,select,button{padding:10px;border-radius:8px;border:none}
+input,select{background:#334155;color:white;width:100%}
+button{background:#3b82f6;color:white;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #334155}
+canvas{max-height:320px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>NutriScope</h1>
+
+<div class="card">
+<h2>Profile</h2>
+<div class="grid g2">
+<input id="age" type="number" placeholder="Age">
+<select id="gender"><option>Male</option><option>Female</option></select>
+<input id="height" type="number" placeholder="Height (cm)">
+<input id="weight" type="number" placeholder="Weight (kg)">
+<select id="activity">
+<option value="1.2">Sedentary</option>
+<option value="1.375">Light</option>
+<option value="1.55">Moderate</option>
+<option value="1.725">Active</option>
+</select>
+<select id="diet">
+<option>Vegetarian</option>
+<option>Non-Vegetarian</option>
+<option>Eggetarian</option>
+</select>
+</div>
+</div>
+
+<div class="card">
+<h2>Food Logging</h2>
+<div class="grid g2">
+<select id="food"></select>
+<input id="qty" type="number" value="100">
+<input id="unit" value="g">
+<button onclick="addFood()">Add Food</button>
+</div>
+<table>
+<thead><tr><th>Food</th><th>Qty</th><th>Unit</th><th>Remove</th></tr></thead>
+<tbody id="log"></tbody>
+</table>
+</div>
+
+<div class="grid g2">
+<div class="card"><h2>Energy Progress</h2><div id="energy"></div></div>
+<div class="card"><canvas id="macroChart"></canvas></div>
+</div>
+
+<div class="card">
+<h2>Nutrient Summary</h2>
+<table id="nutrientTable"></table>
+</div>
+
+<div class="card">
+<h2>Recommendations</h2>
+<div id="recs"></div>
+</div>
+</div>
+
+<script>
+const foods={
+Rice:[130,2.7,28,0.3,0.4,0.2,10,0,0,0],
+Roti:[120,4,24,1,3,1.2,15,0,0,0],
+Dal:[116,9,20,0.4,8,3,20,2,0,0],
+Paneer:[265,18,1,20,0,0.2,208,0,0.2,1],
+Curd:[98,3.5,4.7,4.3,0,0.1,121,0,0.1,0.4],
+Chana:[164,9,27,2.6,8,2.9,49,1.3,0,0],
+Rajma:[127,9,23,0.5,6,2.9,28,0,0,0],
+Banana:[89,1.1,23,0.3,2.6,0.3,5,8.7,0,0],
+Apple:[52,0.3,14,0.2,2.4,0.1,6,4.6,0,0],
+Milk:[61,3.2,5,3.3,0,0,113,0,1.3,0.4],
+Oats:[389,17,66,7,10,4.7,54,0,0,0],
+Bread:[265,9,49,3.2,2.7,3.6,107,0,0,0],
+Egg:[155,13,1.1,11,0,1.8,50,0,2,1.1],
+Chicken:[239,27,0,14,0,1.3,15,0,0.1,0.3],
+Fish:[206,22,0,12,0,0.8,20,0,2.5,2],
+Potato:[77,2,17,0.1,2.2,0.8,12,19.7,0,0],
+Poha:[130,2.6,25,0.5,1.1,1.5,8,0,0,0],
+Idli:[58,2,12,0.4,0.8,0.3,10,0,0,0],
+Dosa:[168,4,28,3.7,1.5,0.8,12,0,0,0],
+Spinach:[23,2.9,3.6,0.4,2.2,2.7,99,28,0,0]
+};
+
+const nutrients=["Calories","Protein","Carbs","Fat","Fiber","Iron","Calcium","Vitamin C","Vitamin D","Vitamin B12"];
+const targets={Calories:2000,Protein:80,Carbs:250,Fat:65,Fiber:30,Iron:18,Calcium:1000,"Vitamin C":90,"Vitamin D":15,"Vitamin B12":2.4};
+
+let entries=[];
+
+Object.keys(foods).forEach(f=>food.innerHTML+=`<option>${f}</option>`);
+
+function addFood(){
+entries.push({food:food.value,qty:+qty.value,unit:unit.value});
+render();
+}
+
+function removeFood(i){entries.splice(i,1);render();}
+
+function totals(){
+let t=Array(10).fill(0);
+entries.forEach(e=>{
+let m=e.qty/100;
+foods[e.food].forEach((v,i)=>t[i]+=v*m);
+});
+return t;
+}
+
+function render(){
+log.innerHTML=entries.map((e,i)=>`<tr><td>${e.food}</td><td>${e.qty}</td><td>${e.unit}</td><td><button onclick="removeFood(${i})">X</button></td></tr>`).join("");
+let t=totals();
+
+let table="<tr><th>Nutrient</th><th>Value</th><th>Target</th><th>%</th></tr>";
+nutrients.forEach((n,i)=>{
+let p=((t[i]/targets[n])*100||0).toFixed(0);
+table+=`<tr><td>${n}</td><td>${t[i].toFixed(1)}</td><td>${targets[n]}</td><td>${p}%</td></tr>`;
+});
+nutrientTable.innerHTML=table;
+
+energy.innerHTML=`${t[0].toFixed(0)} / ${targets.Calories} kcal (${((t[0]/targets.Calories)*100).toFixed(0)}%)`;
+
+const deficits=[];
+nutrients.forEach((n,i)=> deficits.push({n,v:(targets[n]-t[i])}));
+deficits.sort((a,b)=>b.v-a.v);
+
+let dietPref=diet.value;
+let rec="Top deficiencies: "+deficits.slice(0,3).map(x=>x.n).join(", ")+"<br>";
+if(dietPref==="Vegetarian") rec+="Add paneer, milk, spinach, dal.";
+if(dietPref==="Eggetarian") rec+="Add eggs, milk, spinach.";
+if(dietPref==="Non-Vegetarian") rec+="Add chicken, fish, eggs.";
+recs.innerHTML=rec;
+
+if(window.chartObj) chartObj.destroy();
+chartObj=new Chart(document.getElementById('macroChart'),{
+type:'doughnut',
+data:{labels:['Protein','Carbs','Fat'],
+datasets:[{data:[t[1],t[2],t[3]]}]}
+});
+}
+render();
+</script>
+</body>
+</html>
