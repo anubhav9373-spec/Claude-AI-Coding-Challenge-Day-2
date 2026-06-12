@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Intelligence Dashboard - Anubhav Maurya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 50%, #0f172a 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #e2e8f0;
+        }
+        .glassmorphism {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+            overflow-y: auto;
+            z-index: 40;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 3px;
+        }
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin: 4px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .nav-item:hover {
+            background: rgba(148, 163, 184, 0.1);
+            color: #60a5fa;
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: #fff;
+        }
+        .score-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .score-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.2);
+        }
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            font-size: 28px;
+            font-weight: 700;
+            background: conic-gradient(#3b82f6 0deg, #3b82f6 var(--percentage), rgba(148, 163, 184, 0.1) var(--percentage));
+            box-shadow: inset 0 0 0 4px rgba(15, 23, 42, 0.8);
+        }
+        .tab-button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 1px solid transparent;
+            background: rgba(148, 163, 184, 0.05);
+            color: #cbd5e1;
+        }
+        .tab-button:hover {
+            background: rgba(148, 163, 184, 0.1);
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: #fff;
+            border-color: #60a5fa;
+        }
+        .progress-bar {
+            height: 6px;
+            background: rgba(148, 163, 184, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.4s ease;
+        }
+        .skill-tag {
+            display: inline-flex;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 4px;
+        }
+        .skill-tag.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .skill-tag.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.15);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            background: rgba(148, 163, 184, 0.05);
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+        }
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3);
+        }
+        .hidden {
+            display: none;
+        }
+        .message-box {
+            background: rgba(148, 163, 184, 0.05);
+            border-left: 3px solid #3b82f6;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .copy-btn {
+            padding: 8px 16px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid #60a5fa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+                padding: 16px;
+            }
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar sidebar-scrollbar">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-xl font-bold text-white mb-2">Career Dashboard</h1>
+            <p class="text-xs text-slate-400">Anubhav Maurya</p>
+        </div>
+        
+        <div class="p-4">
+            <div class="nav-item active" onclick="switchSection('executive')">
+                <span>📊</span>
+                <span>Executive Summary</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('ats')">
+                <span>✓</span>
+                <span>ATS Analysis</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('branding')">
+                <span>🎯</span>
+                <span>Personal Branding</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('outreach')">
+                <span>✉️</span>
+                <span>Outreach Toolkit</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('interview')">
+                <span>🎤</span>
+                <span>Interview Prep</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('strategy')">
+                <span>📈</span>
+                <span>Career Strategy</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('titles')">
+                <span>💼</span>
+                <span>Job Titles</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('learning')">
+                <span>📚</span>
+                <span>Learning Roadmap</span>
+            </div>
+        </div>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+            <button class="export-btn w-full text-sm" onclick="exportDashboard()">
+                📥 Export as PDF
+            </button>
+            <p class="text-xs text-slate-500 mt-3">Last Updated: June 12, 2026</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Executive Summary Section -->
+        <div id="executive" class="section fade-in">
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-white mb-2">Career Intelligence Dashboard</h1>
+                <p class="text-slate-400">AI Engineer | Machine Learning Specialist | Python & Deep Learning Expert</p>
+            </div>
+
+            <!-- Score Cards -->
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="glassmorphism p-6 score-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-slate-400 text-sm mb-2">ATS Score</p>
+                            <p class="text-3xl font-bold text-white">92%</p>
+                        </div>
+                        <span style="--percentage: 92%;" class="score-badge">92</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%"></div>
+                    </div>
+                </div>
+
+                <div class="glassmorphism p-6 score-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-slate-400 text-sm mb-2">Recruiter Fit</p>
+                            <p class="text-3xl font-bold text-white">88%</p>
+                        </div>
+                        <span style="--percentage: 88%;" class="score-badge">88</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%"></div>
+                    </div>
+                </div>
+
+                <div class="glassmorphism p-6 score-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-slate-400 text-sm mb-2">JD Match</p>
+                            <p class="text-3xl font-bold text-white">94%</p>
+                        </div>
+                        <span style="--percentage: 94%;" class="score-badge">94</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 94%"></div>
+                    </div>
+                </div>
+
+                <div class="glassmorphism p-6 score-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-slate-400 text-sm mb-2">Interview Ready</p>
+                            <p class="text-3xl font-bold text-white">85%</p>
+                        </div>
+                        <span style="--percentage: 85%;" class="score-badge">85</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Insights -->
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">🎯 Top Strengths</h3>
+                    <ul class="space-y-2">
+                        <li class="text-sm text-slate-300">✓ Perfect JD alignment (94% match)</li>
+                        <li class="text-sm text-slate-300">✓ Full-stack AI development capabilities</li>
+                        <li class="text-sm text-slate-300">✓ Advanced Generative AI & LLM knowledge</li>
+                        <li class="text-sm text-slate-300">✓ Comprehensive deep learning expertise</li>
+                        <li class="text-sm text-slate-300">✓ End-to-end project delivery experience</li>
+                    </ul>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">⚡ Priority Actions</h3>
+                    <ul class="space-y-2">
+                        <li class="text-sm text-slate-300">1. Learn FastAPI & Model Deployment (1-2 weeks)</li>
+                        <li class="text-sm text-slate-300">2. Deploy model to cloud platform (2-3 weeks)</li>
+                        <li class="text-sm text-slate-300">3. Update LinkedIn headline & profile</li>
+                        <li class="text-sm text-slate-300">4. Send recruiter outreach emails (this week)</li>
+                        <li class="text-sm text-slate-300">5. Apply to 5 target positions immediately</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Featured Metrics -->
+            <div class="glassmorphism p-8 card-hover">
+                <h3 class="text-xl font-bold text-white mb-6">Career Readiness Snapshot</h3>
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <p class="text-4xl font-bold text-blue-400">12+</p>
+                        <p class="text-slate-400 mt-2">Completed Projects</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-4xl font-bold text-blue-400">10</p>
+                        <p class="text-slate-400 mt-2">Target Job Titles</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-4xl font-bold text-blue-400">2</p>
+                        <p class="text-slate-400 mt-2">Weeks to Ready</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ATS Analysis Section -->
+        <div id="ats" class="section fade-in hidden">
+            <h2 class="text-3xl font-bold text-white mb-6">ATS Analysis & Optimization</h2>
+            
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">✓ Current Strengths</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">Python Programming</span>
+                            <span class="skill-tag success">Proficient</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">TensorFlow & Keras</span>
+                            <span class="skill-tag success">Proficient</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">Scikit-learn</span>
+                            <span class="skill-tag success">Proficient</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">NumPy & Pandas</span>
+                            <span class="skill-tag success">Proficient</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">SQL & Databases</span>
+                            <span class="skill-tag success">Competent</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">Git & GitHub</span>
+                            <span class="skill-tag success">Proficient</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">⚠️ Growth Opportunities</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">Model Deployment (Docker)</span>
+                            <span class="skill-tag warning">Priority</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">Cloud ML Platforms</span>
+                            <span class="skill-tag warning">Priority</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">API Development (FastAPI)</span>
+                            <span class="skill-tag warning">Priority</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">MLOps & CI/CD</span>
+                            <span class="skill-tag warning">Learn</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">Advanced Statistics</span>
+                            <span class="skill-tag warning">Deepen</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-slate-300">Production Metrics</span>
+                            <span class="skill-tag warning">Learn</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keywords Analysis -->
+            <div class="glassmorphism p-6 card-hover mb-8">
+                <h3 class="text-lg font-bold text-white mb-4">📌 High-Impact Keywords Already in Your Resume</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="skill-tag success">Deep Learning</span>
+                    <span class="skill-tag success">TensorFlow</span>
+                    <span class="skill-tag success">Keras</span>
+                    <span class="skill-tag success">Machine Learning</span>
+                    <span class="skill-tag success">Neural Networks</span>
+                    <span class="skill-tag success">Python</span>
+                    <span class="skill-tag success">Feature Engineering</span>
+                    <span class="skill-tag success">Data Preprocessing</span>
+                    <span class="skill-tag success">Model Evaluation</span>
+                    <span class="skill-tag success">Generative AI</span>
+                    <span class="skill-tag success">LLMs</span>
+                    <span class="skill-tag success">Scikit-learn</span>
+                </div>
+            </div>
+
+            <!-- Missing Keywords -->
+            <div class="glassmorphism p-6 card-hover">
+                <h3 class="text-lg font-bold text-white mb-4">🎯 Keywords to Add (If Applicable)</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="skill-tag warning">Docker</span>
+                    <span class="skill-tag warning">FastAPI</span>
+                    <span class="skill-tag warning">AWS SageMaker</span>
+                    <span class="skill-tag warning">Model Deployment</span>
+                    <span class="skill-tag warning">API Development</span>
+                    <span class="skill-tag warning">REST APIs</span>
+                    <span class="skill-tag warning">Cloud Computing</span>
+                    <span class="skill-tag warning">MLOps</span>
+                    <span class="skill-tag warning">Flask/FastAPI</span>
+                    <span class="skill-tag warning">Production ML</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Branding Section -->
+        <div id="branding" class="section fade-in hidden">
+            <h2 class="text-3xl font-bold text-white mb-6">Personal Branding Strategy</h2>
+            
+            <div class="glassmorphism p-6 mb-6 card-hover">
+                <h3 class="text-lg font-bold text-white mb-4">🎯 Unique Value Proposition</h3>
+                <p class="text-slate-300 mb-4">End-to-end AI engineer with proven expertise in designing, optimizing, and deploying deep learning models that solve real-world problems. Combines strong technical foundations in Python, TensorFlow, and Keras with practical application development skills. Demonstrates full-stack AI capabilities from raw data to production-ready intelligent systems. Passionate about emerging technologies including Generative AI and LLMs.</p>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copy UVP</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">💼 Professional Positioning</h3>
+                    <p class="text-slate-300 text-sm mb-4">I am an AI Engineer specializing in building intelligent, production-ready applications powered by machine learning and deep learning. I transform complex datasets into predictive models, optimize them systematically, and integrate them into user-centric applications. My commitment to continuous learning in Generative AI ensures I bring cutting-edge capabilities to every project.</p>
+                    <button class="copy-btn" onclick="copyToClipboard(this)">Copy Statement</button>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">🔗 LinkedIn Headlines</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-xs text-slate-400 mb-1">Recommended:</p>
+                            <p class="text-sm text-white bg-slate-800 p-2 rounded">"AI Engineer | Deep Learning & ML Model Development | Python, TensorFlow, Keras | Building Intelligent Applications"</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 mb-1">Alternative:</p>
+                            <p class="text-sm text-white bg-slate-800 p-2 rounded">"AI Engineer: Building End-to-End ML Solutions | Deep Learning, TensorFlow, Python"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glassmorphism p-6 card-hover">
+                <h3 class="text-lg font-bold text-white mb-4">🎤 30-Second Introduction</h3>
+                <p class="text-slate-300 text-sm mb-4">"Hi, I'm Anubhav Maurya, an AI Engineer and Computer Science student specializing in Artificial Intelligence and Machine Learning. I design and optimize deep learning models using TensorFlow and Keras, develop end-to-end machine learning pipelines, and build AI-powered applications with real-time inference capabilities. My expertise spans model development, hyperparameter optimization, data preprocessing, and feature engineering. I'm particularly passionate about Generative AI and Large Language Models. I've completed multiple projects delivering comprehensive AI solutions from raw data to production-ready applications. I'm currently looking for AI Engineer opportunities where I can contribute to building intelligent systems that solve real-world problems."</p>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copy Introduction</button>
+            </div>
+        </div>
+
+        <!-- Outreach Toolkit Section -->
+        <div id="outreach" class="section fade-in hidden">
+            <h2 class="text-3xl font-bold text-white mb-6">Outreach & Communication Toolkit</h2>
+            
+            <div class="flex gap-4 mb-6">
+                <button class="tab-button active" onclick="switchTab(event, 'recruiter-email-tab')">Recruiter Email</button>
+                <button class="tab-button" onclick="switchTab(event, 'hiring-manager-tab')">Hiring Manager Email</button>
+                <button class="tab-button" onclick="switchTab(event, 'follow-up-tab')">Follow-Up Email</button>
+                <button class="tab-button" onclick="switchTab(event, 'linkedin-tab')">LinkedIn Message</button>
+            </div>
+
+            <div id="recruiter-email-tab" class="tab-content">
+                <div class="glassmorphism p-6 card-hover mb-6">
+                    <h3 class="text-lg font-bold text-white mb-4">📧 Recruiter Outreach Email</h3>
+                    <div class="message-box">Subject: AI Engineer | ML Model Development Expertise | Python, TensorFlow, Keras
+
+Hi [Recruiter Name],
+
+I am reaching out as an AI Engineer candidate with specialized expertise in machine learning and deep learning model development. I am actively exploring AI Engineer roles where I can leverage my skills in TensorFlow, Keras, Scikit-learn, and Python to build intelligent systems.
+
+My background includes:
+• Deep learning architecture design and model optimization (CNN, RNN, neural networks)
+• End-to-end ML pipelines: data preprocessing, feature engineering, model evaluation
+• AI-powered application development with real-time inference
+• Advanced data analysis and visualization for actionable insights
+• Hands-on experience with Generative AI, LLMs, and prompt engineering
+• Git, GitHub, SQL, NumPy, and Pandas proficiency
+
+I have completed multiple projects demonstrating full-stack AI development capabilities, from raw data to production-ready applications integrating ML models with intuitive interfaces.
+
+Currently pursuing B.Tech in Computer Science Engineering (AI/ML specialization). Open to opportunities across India and interested in roles focused on model development, AI applications, and emerging AI technologies.
+
+Key links:
+• GitHub: github.com/anubhav9373-spec
+• LinkedIn: linkedin.com/in/anubhav-maurya-10aa38269/
+
+Best regards,
+Anubhav Maurya
+anubhav9373@gmail.com</div>
+                    <button class="copy-btn mt-4" onclick="copyToClipboard(this.previousElementSibling)">Copy Email</button>
+                </div>
+            </div>
+
+            <div id="hiring-manager-tab" class="tab-content hidden">
+                <div class="glassmorphism p-6 card-hover mb-6">
+                    <h3 class="text-lg font-bold text-white mb-4">📧 Hiring Manager Email</h3>
+                    <div class="message-box">Subject: AI Engineer Application | Full-Stack ML Development Expertise
+
+Dear Hiring Manager,
+
+I am writing to express my genuine interest in the AI Engineer position on your team. Your job description resonates deeply with my professional focus and project experience in building intelligent, end-to-end AI solutions.
+
+What excites me most about this role is the emphasis on the complete AI development lifecycle—model training, evaluation, optimization, and integration into production applications. This is exactly the scope of expertise I have cultivated through my academic projects and self-directed learning.
+
+Specifically, I bring:
+
+**Model Development & Optimization**: Deep neural networks using TensorFlow and Keras, hyperparameter tuning, cross-validation, and regularization techniques (dropout, batch normalization). Measurable improvements in model accuracy and generalization through systematic optimization.
+
+**Data Engineering**: Comprehensive EDA, feature engineering, preprocessing pipelines, handling missing values, categorical encoding, and data cleaning on complex datasets.
+
+**Intelligent Applications**: I have designed and deployed interactive, web-based applications that integrate trained ML models with user-friendly interfaces for real-time analytics and reporting.
+
+**Emerging Technologies**: Active learning in Generative AI, LLM applications, prompt engineering, and modern AI frameworks—positioning me to contribute immediately to your research and implementation goals.
+
+I am particularly drawn to your company's focus on building practical, user-centric AI solutions. I would be delighted to discuss how my technical depth, project delivery track record, and passion for AI technology align with your team's needs.
+
+Best regards,
+Anubhav Maurya
+anubhav9373@gmail.com | linkedin.com/in/anubhav-maurya-10aa38269/</div>
+                    <button class="copy-btn mt-4" onclick="copyToClipboard(this.previousElementSibling)">Copy Email</button>
+                </div>
+            </div>
+
+            <div id="follow-up-tab" class="tab-content hidden">
+                <div class="glassmorphism p-6 card-hover mb-6">
+                    <h3 class="text-lg font-bold text-white mb-4">📧 Follow-Up Email (5 Days)</h3>
+                    <div class="message-box">Subject: Following Up | AI Engineer Application
+
+Hi [Hiring Manager Name],
+
+I wanted to follow up on my application for the AI Engineer position submitted [X days] ago. I remain highly interested in this opportunity and believe my expertise in developing end-to-end AI solutions—from model design and optimization to application integration—would be a strong fit for your team.
+
+If you have any questions about my experience with TensorFlow, deep learning model optimization, or AI-powered application development, I'd be happy to discuss them further. I'm also available for a conversation at your earliest convenience.
+
+Thank you for considering my application. I look forward to hearing from you.
+
+Best regards,
+Anubhav Maurya
+anubhav9373@gmail.com | github.com/anubhav9373-spec</div>
+                    <button class="copy-btn mt-4" onclick="copyToClipboard(this.previousElementSibling)">Copy Email</button>
+                </div>
+            </div>
+
+            <div id="linkedin-tab" class="tab-content hidden">
+                <div class="glassmorphism p-6 card-hover mb-6">
+                    <h3 class="text-lg font-bold text-white mb-4">🔗 LinkedIn Connection Message</h3>
+                    <div class="message-box">Hi [Name], I'm Anubhav, an AI Engineer passionate about machine learning and deep learning. I've built end-to-end AI solutions using Python, TensorFlow, and Keras. Excited to connect and explore opportunities in AI! — anubhav9373@gmail.com
+
+[Character Count: 219/300]</div>
+                    <button class="copy-btn mt-4" onclick="copyToClipboard(this.previousElementSibling)">Copy Message</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Prep Section -->
+        <div id="interview" class="section fade-in hidden">
+            <h2 class="text-3xl font-bold text-white mb-6">Interview Preparation Guide</h2>
+            
+            <div class="glassmorphism p-6 mb-6 card-hover">
+                <h3 class="text-lg font-bold text-white mb-4">🎯 Most Likely Interview Questions</h3>
+                <div class="space-y-4">
+                    <div class="border-l-2 border-blue-500 pl-4">
+                        <p class="font-semibold text-white mb-2">Q: Walk me through your most complex ML project.</p>
+                        <p class="text-sm text-slate-300">Answer: Describe the end-to-end process—problem definition, data collection/preprocessing, model selection, hyperparameter tuning, evaluation metrics, and business impact.</p>
+                    </div>
+                    <div class="border-l-2 border-blue-500 pl-4">
+                        <p class="font-semibold text-white mb-2">Q: How do you approach model optimization?</p>
+                        <p class="text-sm text-slate-300">Answer: Discuss hyperparameter tuning, regularization techniques (dropout, L1/L2), cross-validation, feature selection, and measurement of improvements using appropriate metrics.</p>
+                    </div>
+                    <div class="border-l-2 border-blue-500 pl-4">
+                        <p class="font-semibold text-white mb-2">Q: Tell me about your experience with deep learning frameworks.</p>
+                        <p class="text-sm text-slate-300">Answer: Detail specific projects using TensorFlow and Keras, architectures implemented (CNN, RNN), and optimization approaches used.</p>
+                    </div>
+                    <div class="border-l-2 border-blue-500 pl-4">
+                        <p class="font-semibold text-white mb-2">Q: How do you handle data preprocessing?</p>
+                        <p class="text-sm text-slate-300">Answer: Mention normalization, standardization, handling missing values, categorical encoding, feature engineering, and EDA practices.</p>
+                    </div>
+                    <div class="border-l-2 border-blue-500 pl-4">
+                        <p class="font-semibold text-white mb-2">Q: What's your experience deploying AI models to production?</p>
+                        <p class="text-sm text-slate-300">Answer: Discuss dashboard applications, model integration into web interfaces, and real-time inference handling. Mention learning opportunities in deployment frameworks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">💡 Key Talking Points</h3>
+                    <ul class="space-y-3">
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-blue-400 mr-2">•</span>
+                            <span>Deep learning architecture design with CNN/RNN</span>
+                        </li>
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-blue-400 mr-2">•</span>
+                            <span>Systematic hyperparameter optimization approach</span>
+                        </li>
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-blue-400 mr-2">•</span>
+                            <span>End-to-end ML pipeline development</span>
+                        </li>
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-blue-400 mr-2">•</span>
+                            <span>Feature engineering & selection expertise</span>
+                        </li>
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-blue-400 mr-2">•</span>
+                            <span>Full-stack AI application development</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">🚀 Project Highlights to Discuss</h3>
+                    <ul class="space-y-3">
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>Deep Learning-Based Predictive Classification System</span>
+                        </li>
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>Supervised & Unsupervised Learning Model Development</span>
+                        </li>
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>Exploratory Data Analysis & Advanced Visualization</span>
+                        </li>
+                        <li class="text-sm text-slate-300 flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>AI-Powered Dashboard & Intelligent Application Development</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Career Strategy Section -->
+        <div id="strategy" class="section fade-in hidden">
+            <h2 class="text-3xl font-bold text-white mb-6">30-Day Career Action Plan</h2>
+            
+            <div class="grid grid-cols-1 gap-6 mb-8">
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">📅 Week 1: Foundation & Outreach</h3>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>✓ Update LinkedIn profile with new headline and summary</li>
+                        <li>✓ Customize cover letter for 5 target companies</li>
+                        <li>✓ Apply to 3-5 AI Engineer positions</li>
+                        <li>✓ Reach out to 10 recruiters on LinkedIn (personalized messages)</li>
+                        <li>✓ Compile list of 20 target companies in India</li>
+                    </ul>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">📅 Week 2: Targeted Outreach</h3>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>✓ Apply to 5-7 additional positions</li>
+                        <li>✓ Connect with 10-15 hiring managers/team leads (LinkedIn)</li>
+                        <li>✓ Attend 1 AI/ML networking event or webinar</li>
+                        <li>✓ Refine GitHub portfolio with project descriptions</li>
+                        <li>✓ Document 2 key projects with metrics for interviews</li>
+                    </ul>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">📅 Week 3: Learning & Deepening</h3>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>✓ Start FastAPI tutorial (build simple ML API)</li>
+                        <li>✓ Follow up with initial recruiter outreach</li>
+                        <li>✓ Apply to 5-7 positions</li>
+                        <li>✓ Practice interview answers and 30-second intro</li>
+                        <li>✓ Join 2 AI communities/Slack channels for networking</li>
+                    </ul>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">📅 Week 4: Momentum & Preparation</h3>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>✓ Deploy one model to cloud (AWS SageMaker or Google Cloud)</li>
+                        <li>✓ Apply to 5-7 final positions</li>
+                        <li>✓ Conduct mock interviews (technical + behavioral)</li>
+                        <li>✓ Reach out to any warm contacts in target companies</li>
+                        <li>✓ Finalize project portfolio with deployment links</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Titles Section -->
+        <div id="titles" class="section fade-in hidden">
+            <h2 class="text-3xl font-bold text-white mb-6">Top 10 Job Titles for Your Profile</h2>
+            
+            <div class="overflow-x-auto glassmorphism p-6 card-hover">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Job Title</th>
+                            <th>Match Level</th>
+                            <th>Key Focus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1</strong></td>
+                            <td>AI Engineer</td>
+                            <td><span class="skill-tag success">Perfect Fit</span></td>
+                            <td>Model development, AI applications, end-to-end workflows</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2</strong></td>
+                            <td>Machine Learning Engineer</td>
+                            <td><span class="skill-tag success">Perfect Fit</span></td>
+                            <td>ML model development, optimization, deployment</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3</strong></td>
+                            <td>Deep Learning Engineer</td>
+                            <td><span class="skill-tag success">Excellent</span></td>
+                            <td>Neural networks, CNN/RNN architectures, advanced models</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4</strong></td>
+                            <td>Data Scientist</td>
+                            <td><span class="skill-tag success">Excellent</span></td>
+                            <td>EDA, statistical analysis, predictive modeling, insights</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5</strong></td>
+                            <td>Generative AI Engineer</td>
+                            <td><span class="skill-tag success">Excellent</span></td>
+                            <td>LLM applications, prompt engineering, AI solutions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>6</strong></td>
+                            <td>ML Operations Engineer (MLOps)</td>
+                            <td><span class="skill-tag warning">Good Fit</span></td>
+                            <td>Model deployment, CI/CD, monitoring (with further learning)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>7</strong></td>
+                            <td>Computer Vision Engineer</td>
+                            <td><span class="skill-tag warning">Good Fit</span></td>
+                            <td>CNN architectures, image classification, detection models</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8</strong></td>
+                            <td>AI Research Intern/Assistant</td>
+                            <td><span class="skill-tag success">Excellent</span></td>
+                            <td>Model research, papers, experimental ML techniques</td>
+                        </tr>
+                        <tr>
+                            <td><strong>9</strong></td>
+                            <td>Backend Engineer (AI Focus)</td>
+                            <td><span class="skill-tag warning">Good Fit</span></td>
+                            <td>API development, AI application integration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>10</strong></td>
+                            <td>Analytics Engineer</td>
+                            <td><span class="skill-tag warning">Good Fit</span></td>
+                            <td>Data pipelines, dashboards, BI with ML insights</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Learning Roadmap Section -->
+        <div id="learning" class="section fade-in hidden">
+            <h2 class="text-3xl font-bold text-white mb-6">Strategic Learning Roadmap</h2>
+            
+            <div class="grid grid-cols-1 gap-6 mb-8">
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">🎯 Week 1-2: Model Deployment Fundamentals</h3>
+                    <p class="text-slate-300 text-sm mb-4">Master containerization and deployment basics</p>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>• Docker fundamentals (containers, images, Dockerfiles)</li>
+                        <li>• Containerizing a trained ML model</li>
+                        <li>• Docker Compose for multi-container applications</li>
+                        <li>• Resource: Docker for Data Scientists course</li>
+                        <li>• Project: Containerize one of your existing models</li>
+                    </ul>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">🎯 Week 2-3: FastAPI & ML API Development</h3>
+                    <p class="text-slate-300 text-sm mb-4">Build REST APIs to serve ML predictions</p>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>• FastAPI basics (routing, request handling, validation)</li>
+                        <li>• Serving ML models via REST APIs</li>
+                        <li>• Input validation and error handling</li>
+                        <li>• Testing and documentation</li>
+                        <li>• Project: Deploy simple ML API serving a trained model</li>
+                    </ul>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">🎯 Week 3-4: Cloud ML & Production Deployment</h3>
+                    <p class="text-slate-300 text-sm mb-4">Get hands-on with managed ML services</p>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>• AWS SageMaker OR Google Cloud AI (pick one)</li>
+                        <li>• Model training on cloud platforms</li>
+                        <li>• Deployment and endpoint management</li>
+                        <li>• Monitoring and scaling</li>
+                        <li>• Project: Deploy one end-to-end model to cloud</li>
+                    </ul>
+                </div>
+
+                <div class="glassmorphism p-6 card-hover">
+                    <h3 class="text-lg font-bold text-white mb-4">🎯 Ongoing: MLOps & Production Excellence</h3>
+                    <p class="text-slate-300 text-sm mb-4">Build production-grade ML systems</p>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>• Experiment tracking (MLflow, Weights & Biases)</li>
+                        <li>• Model versioning and registry</li>
+                        <li>• Monitoring and performance tracking</li>
+                        <li>• CI/CD pipelines for ML</li>
+                        <li>• Project: End-to-end MLOps pipeline for one model</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glassmorphism p-6 card-hover">
+                <h3 class="text-lg font-bold text-white mb-4">📚 Recommended Resources</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-800 p-4 rounded">
+                        <p class="font-semibold text-white text-sm mb-2">FastAPI</p>
+                        <p class="text-xs text-slate-400">Official documentation + Real Python tutorials</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded">
+                        <p class="font-semibold text-white text-sm mb-2">Docker</p>
+                        <p class="text-xs text-slate-400">Docker for Data Scientists course</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded">
+                        <p class="font-semibold text-white text-sm mb-2">AWS SageMaker</p>
+                        <p class="text-xs text-slate-400">AWS free tier + official tutorials</p>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded">
+                        <p class="font-semibold text-white text-sm mb-2">MLOps</p>
+                        <p class="text-xs text-slate-400">MLOps.community + Made With ML</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Add active class to clicked nav item
+            event.target.closest('.nav-item').classList.add('active');
+        }
+
+        function switchTab(event, tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function copyToClipboard(element) {
+            const text = element.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = element.innerText;
+                element.innerText = '✓ Copied!';
+                setTimeout(() => {
+                    element.innerText = originalText;
+                }, 2000);
+            });
+        }
+
+        function exportDashboard() {
+            alert('PDF export feature coming soon! For now, use your browser\'s Print to PDF feature (Ctrl+P or Cmd+P).');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show executive summary by default
+            const executiveSection = document.getElementById('executive');
+            if (executiveSection) {
+                executiveSection.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
