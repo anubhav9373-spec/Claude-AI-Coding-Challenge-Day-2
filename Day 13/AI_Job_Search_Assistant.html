@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Search Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --color-background-primary: #ffffff;
+            --color-background-secondary: #f5f5f5;
+            --color-background-tertiary: #fafafa;
+            --color-background-info: #e3f2fd;
+            --color-background-success: #e8f5e9;
+            --color-background-warning: #fff3e0;
+            --color-background-danger: #ffebee;
+            
+            --color-text-primary: #1a1a1a;
+            --color-text-secondary: #666666;
+            --color-text-tertiary: #999999;
+            --color-text-info: #1976d2;
+            --color-text-success: #388e3c;
+            --color-text-warning: #f57c00;
+            --color-text-danger: #d32f2f;
+            
+            --color-border-tertiary: rgba(0, 0, 0, 0.1);
+            --color-border-secondary: rgba(0, 0, 0, 0.2);
+            --color-border-primary: rgba(0, 0, 0, 0.3);
+            
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-serif: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Monaco', 'Courier New', monospace;
+            
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 16px;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-background-primary: #1a1a1a;
+                --color-background-secondary: #2d2d2d;
+                --color-background-tertiary: #121212;
+                --color-background-info: #1e3a5f;
+                --color-background-success: #1b3a1b;
+                --color-background-warning: #3f2a1a;
+                --color-background-danger: #3a1b1b;
+                
+                --color-text-primary: #ffffff;
+                --color-text-secondary: #b0b0b0;
+                --color-text-tertiary: #808080;
+                --color-text-info: #64b5f6;
+                --color-text-success: #81c784;
+                --color-text-warning: #ffb74d;
+                --color-text-danger: #ef5350;
+                
+                --color-border-tertiary: rgba(255, 255, 255, 0.1);
+                --color-border-secondary: rgba(255, 255, 255, 0.2);
+                --color-border-primary: rgba(255, 255, 255, 0.3);
+            }
+        }
+        
+        body {
+            background: var(--color-background-tertiary);
+            color: var(--color-text-primary);
+            font-family: var(--font-sans);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: var(--color-background-primary);
+            border-radius: var(--border-radius-lg);
+            border: 0.5px solid var(--color-border-tertiary);
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text-info);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 0.5px solid var(--color-border-tertiary);
+            background: var(--color-background-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 0.5rem;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-radius: var(--border-radius-md);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tab-btn:hover {
+            color: var(--color-text-primary);
+            background: var(--color-background-secondary);
+        }
+        
+        .tab-btn.active {
+            color: var(--color-text-info);
+            background: var(--color-background-info);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: var(--color-background-primary);
+            border: 0.5px solid var(--color-border-tertiary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--color-text-info);
+        }
+        
+        .job-card {
+            background: var(--color-background-primary);
+            border: 0.5px solid var(--color-border-tertiary);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .job-card:hover {
+            border-color: var(--color-border-secondary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .job-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+        
+        .job-company {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .match-score {
+            background: var(--color-background-success);
+            color: var(--color-text-success);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--border-radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 100px;
+            border: 0.5px solid var(--color-border-tertiary);
+        }
+        
+        .job-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 1.25rem;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .detail-icon {
+            font-size: 16px;
+            color: var(--color-text-info);
+        }
+        
+        .job-description {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+            padding: 1rem;
+            background: var(--color-background-secondary);
+            border-radius: var(--border-radius-md);
+        }
+        
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .skill-tag {
+            background: var(--color-background-secondary);
+            color: var(--color-text-secondary);
+            padding: 0.4rem 0.9rem;
+            border-radius: var(--border-radius-md);
+            font-size: 12px;
+            border: 0.5px solid var(--color-border-tertiary);
+            font-weight: 500;
+        }
+        
+        .skill-tag.matched {
+            background: var(--color-background-success);
+            color: var(--color-text-success);
+            border-color: var(--color-border-primary);
+        }
+        
+        .job-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 0.5px solid var(--color-border-tertiary);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .apply-btn {
+            background: var(--color-background-info);
+            color: var(--color-text-info);
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .apply-btn:hover {
+            opacity: 0.85;
+            transform: translateY(-2px);
+        }
+        
+        .source-badge {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+        
+        .section {
+            margin-bottom: 2.5rem;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-title i {
+            color: var(--color-text-info);
+            font-size: 20px;
+        }
+        
+        .skill-assessment {
+            background: var(--color-background-primary);
+            border: 0.5px solid var(--color-border-tertiary);
+            border-radius: var(--border-radius-lg);
+            padding: 1.75rem;
+        }
+        
+        .skill-row {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+        }
+        
+        .skill-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .skill-name {
+            min-width: 160px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text-primary);
+        }
+        
+        .skill-bar {
+            flex: 1;
+            height: 10px;
+            background: var(--color-background-secondary);
+            border-radius: 5px;
+            overflow: hidden;
+            min-width: 100px;
+        }
+        
+        .skill-progress {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-good {
+            background: var(--color-text-success);
+        }
+        
+        .progress-medium {
+            background: var(--color-text-warning);
+        }
+        
+        .progress-low {
+            background: var(--color-text-danger);
+        }
+        
+        .skill-level {
+            min-width: 70px;
+            text-align: right;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+        
+        .roadmap-item {
+            background: var(--color-background-primary);
+            border: 0.5px solid var(--color-border-tertiary);
+            border-left: 4px solid var(--color-text-info);
+            border-radius: var(--border-radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .roadmap-week {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .roadmap-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+        }
+        
+        .roadmap-tasks {
+            list-style: none;
+        }
+        
+        .roadmap-tasks li {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.75rem;
+            padding-left: 1.75rem;
+            position: relative;
+            line-height: 1.6;
+        }
+        
+        .roadmap-tasks li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--color-text-success);
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .missing-skills {
+            background: var(--color-background-danger);
+            border: 0.5px solid var(--color-border-tertiary);
+            border-left: 4px solid var(--color-text-danger);
+            border-radius: var(--border-radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .missing-skills-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: var(--color-text-danger);
+        }
+        
+        .missing-skill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 0;
+            border-bottom: 0.5px solid var(--color-border-tertiary);
+            font-size: 13px;
+        }
+        
+        .missing-skill-item:last-child {
+            border-bottom: none;
+        }
+        
+        .skill-name-missing {
+            color: var(--color-text-primary);
+            font-weight: 600;
+        }
+        
+        .skill-demand {
+            background: var(--color-background-warning);
+            color: var(--color-text-warning);
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--border-radius-md);
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .recommendations {
+            background: var(--color-background-info);
+            color: var(--color-text-info);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            border: 0.5px solid var(--color-border-tertiary);
+            font-size: 13px;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+        
+        .certification-item {
+            margin-bottom: 1.5rem;
+            font-size: 13px;
+            padding: 1rem;
+            background: var(--color-background-primary);
+            border-radius: var(--border-radius-md);
+            border: 0.5px solid var(--color-border-tertiary);
+        }
+        
+        .cert-priority {
+            font-weight: 600;
+            color: var(--color-text-primary);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cert-details {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+        }
+        
+        .career-section {
+            background: var(--color-background-primary);
+            border: 0.5px solid var(--color-border-tertiary);
+            border-radius: var(--border-radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .career-section ul {
+            margin-left: 1.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .career-section li {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+        
+        .career-section p {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .career-section strong {
+            color: var(--color-text-primary);
+        }
+        
+        .rank-badge {
+            display: inline-block;
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem 0.75rem;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .job-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .match-score {
+                align-self: flex-start;
+            }
+            
+            .tabs {
+                flex-direction: row;
+            }
+            
+            .tab-btn {
+                padding: 0.65rem 1rem;
+                font-size: 12px;
+            }
+            
+            .metric-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>🤖 AI Job Search Assistant</h1>
+            <p>Your personalized pathway to landing AI/ML engineering roles in India</p>
+            <div class="header-stats">
+                <div class="stat">
+                    <div class="stat-value">82%</div>
+                    <div class="stat-label">Avg Match Score</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Top Matching Jobs</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">₹6.2L</div>
+                    <div class="stat-label">Avg Salary</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Weeks to Ready</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('discovery')">
+                <i class="fas fa-briefcase"></i> Job Discovery
+            </button>
+            <button class="tab-btn" onclick="switchTab('skills')">
+                <i class="fas fa-chart-line"></i> Skill Gap Analysis
+            </button>
+            <button class="tab-btn" onclick="switchTab('roadmap')">
+                <i class="fas fa-map"></i> Career Roadmap
+            </button>
+        </div>
+        
+        <!-- ===== TAB 1: JOB DISCOVERY ===== -->
+        <div id="discovery" class="tab-content active">
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Matching Jobs Found</div>
+                    <div class="metric-value">5</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Average Match Score</div>
+                    <div class="metric-value">82%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Average Salary</div>
+                    <div class="metric-value">₹6.2L</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Top Location</div>
+                    <div class="metric-value">Bangalore</div>
+                </div>
+            </div>
+            
+            <!-- Job Card 1: Flipkart -->
+            <div class="job-card">
+                <div class="job-header">
+                    <div class="job-info">
+                        <h3>AI/ML Engineer</h3>
+                        <div class="job-company">Flipkart | E-commerce</div>
+                    </div>
+                    <div class="match-score">92%</div>
+                </div>
+                <div class="job-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt detail-icon"></i>
+                        <span>Bangalore, India</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-money-bill-wave detail-icon"></i>
+                        <span>₹7.5L - ₹9.5L</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-graduation-cap detail-icon"></i>
+                        <span>Entry Level</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock detail-icon"></i>
+                        <span>Posted 2 days ago</span>
+                    </div>
+                </div>
+                <div class="job-description">
+                    <strong>About the role:</strong> Build ML models for recommendation systems and personalization. Work on production ML pipelines, optimize algorithms for scale, and collaborate with data engineering teams. Handle 100M+ customer interactions daily.
+                </div>
+                <div class="skills-list">
+                    <span class="skill-tag matched">Python</span>
+                    <span class="skill-tag matched">Machine Learning</span>
+                    <span class="skill-tag">TensorFlow</span>
+                    <span class="skill-tag">Data Pipelines</span>
+                    <span class="skill-tag matched">SQL</span>
+                </div>
+                <div class="job-footer">
+                    <span class="source-badge">✓ Source: Indeed</span>
+                    <button class="apply-btn" onclick="applyJob('Flipkart - AI/ML Engineer')">
+                        <i class="fas fa-external-link-alt"></i> View & Apply
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Job Card 2: Unacademy -->
+            <div class="job-card">
+                <div class="job-header">
+                    <div class="job-info">
+                        <h3>Machine Learning Engineer</h3>
+                        <div class="job-company">Unacademy | EdTech</div>
+                    </div>
+                    <div class="match-score">88%</div>
+                </div>
+                <div class="job-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt detail-icon"></i>
+                        <span>Bangalore, India</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-money-bill-wave detail-icon"></i>
+                        <span>₹5.5L - ₹7.5L</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-graduation-cap detail-icon"></i>
+                        <span>Entry Level</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock detail-icon"></i>
+                        <span>Posted 1 week ago</span>
+                    </div>
+                </div>
+                <div class="job-description">
+                    <strong>About the role:</strong> Develop ML models for content recommendation and student learning analytics. Collaborate with data teams on feature engineering, experiment with new algorithms, and improve model performance. Impact 10M+ learners.
+                </div>
+                <div class="skills-list">
+                    <span class="skill-tag matched">Python</span>
+                    <span class="skill-tag matched">Data Science</span>
+                    <span class="skill-tag">PyTorch</span>
+                    <span class="skill-tag matched">SQL</span>
+                    <span class="skill-tag">Feature Engineering</span>
+                </div>
+                <div class="job-footer">
+                    <span class="source-badge">✓ Source: Indeed</span>
+                    <button class="apply-btn" onclick="applyJob('Unacademy - ML Engineer')">
+                        <i class="fas fa-external-link-alt"></i> View & Apply
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Job Card 3: Freshworks -->
+            <div class="job-card">
+                <div class="job-header">
+                    <div class="job-info">
+                        <h3>GenAI Engineer</h3>
+                        <div class="job-company">Freshworks | SaaS</div>
+                    </div>
+                    <div class="match-score">85%</div>
+                </div>
+                <div class="job-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt detail-icon"></i>
+                        <span>Bangalore / Hybrid</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-money-bill-wave detail-icon"></i>
+                        <span>₹6.5L - ₹8.5L</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-graduation-cap detail-icon"></i>
+                        <span>Entry Level</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock detail-icon"></i>
+                        <span>Posted 3 days ago</span>
+                    </div>
+                </div>
+                <div class="job-description">
+                    <strong>About the role:</strong> Work on LLM applications, prompt engineering, and RAG systems. Build intelligent features using latest generative AI technologies. Integrate OpenAI, Claude, and open-source models into SaaS products.
+                </div>
+                <div class="skills-list">
+                    <span class="skill-tag matched">Python</span>
+                    <span class="skill-tag">LLMs</span>
+                    <span class="skill-tag">Prompt Engineering</span>
+                    <span class="skill-tag">API Integration</span>
+                    <span class="skill-tag matched">Machine Learning</span>
+                </div>
+                <div class="job-footer">
+                    <span class="source-badge">✓ Source: Indeed</span>
+                    <button class="apply-btn" onclick="applyJob('Freshworks - GenAI Engineer')">
+                        <i class="fas fa-external-link-alt"></i> View & Apply
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Job Card 4: Microsoft -->
+            <div class="job-card">
+                <div class="job-header">
+                    <div class="job-info">
+                        <h3>Data Scientist</h3>
+                        <div class="job-company">Microsoft (IDC) | Tech</div>
+                    </div>
+                    <div class="match-score">80%</div>
+                </div>
+                <div class="job-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt detail-icon"></i>
+                        <span>Hyderabad, India</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-money-bill-wave detail-icon"></i>
+                        <span>₹6L - ₹8L</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-graduation-cap detail-icon"></i>
+                        <span>Entry Level</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock detail-icon"></i>
+                        <span>Posted 5 days ago</span>
+                    </div>
+                </div>
+                <div class="job-description">
+                    <strong>About the role:</strong> Analyze large datasets, build statistical models, and create data-driven insights. Support Azure cloud-based analytics projects. Work with Azure ML, Synapse, and Power BI for enterprise solutions.
+                </div>
+                <div class="skills-list">
+                    <span class="skill-tag matched">Python</span>
+                    <span class="skill-tag matched">SQL</span>
+                    <span class="skill-tag">Statistics</span>
+                    <span class="skill-tag">Data Visualization</span>
+                    <span class="skill-tag">Cloud Platforms</span>
+                </div>
+                <div class="job-footer">
+                    <span class="source-badge">✓ Source: Indeed</span>
+                    <button class="apply-btn" onclick="applyJob('Microsoft - Data Scientist')">
+                        <i class="fas fa-external-link-alt"></i> View & Apply
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Job Card 5: PhonePe -->
+            <div class="job-card">
+                <div class="job-header">
+                    <div class="job-info">
+                        <h3>AI Developer</h3>
+                        <div class="job-company">PhonePe | FinTech</div>
+                    </div>
+                    <div class="match-score">78%</div>
+                </div>
+                <div class="job-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt detail-icon"></i>
+                        <span>Pune, India</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-money-bill-wave detail-icon"></i>
+                        <span>₹5.5L - ₹7L</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-graduation-cap detail-icon"></i>
+                        <span>Entry Level</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock detail-icon"></i>
+                        <span>Posted 4 days ago</span>
+                    </div>
+                </div>
+                <div class="job-description">
+                    <strong>About the role:</strong> Develop AI solutions for fraud detection and risk assessment. Implement ML models for payment processing optimization. Work with real-time systems handling 50M+ transactions daily.
+                </div>
+                <div class="skills-list">
+                    <span class="skill-tag matched">Python</span>
+                    <span class="skill-tag">Statistical Modeling</span>
+                    <span class="skill-tag">Fraud Detection</span>
+                    <span class="skill-tag matched">Data Science</span>
+                    <span class="skill-tag">Real-time Systems</span>
+                </div>
+                <div class="job-footer">
+                    <span class="source-badge">✓ Source: Indeed</span>
+                    <button class="apply-btn" onclick="applyJob('PhonePe - AI Developer')">
+                        <i class="fas fa-external-link-alt"></i> View & Apply
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== TAB 2: SKILL GAP ANALYSIS ===== -->
+        <div id="skills" class="tab-content">
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Skills Matched</div>
+                    <div class="metric-value">6/15</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Readiness Score</div>
+                    <div class="metric-value">65%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Critical Gaps</div>
+                    <div class="metric-value">4</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">ATS Score</div>
+                    <div class="metric-value">72%</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-check-circle"></i> Your Current Strengths
+                </div>
+                <div class="skill-assessment">
+                    <div class="skill-row">
+                        <div class="skill-name">Python Programming</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-good" style="width: 85%;"></div>
+                        </div>
+                        <div class="skill-level">Excellent</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">SQL & Databases</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-good" style="width: 78%;"></div>
+                        </div>
+                        <div class="skill-level">Very Good</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Machine Learning Basics</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 70%;"></div>
+                        </div>
+                        <div class="skill-level">Good</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Data Analysis & Visualization</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 72%;"></div>
+                        </div>
+                        <div class="skill-level">Good</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Statistics & Probability</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 68%;"></div>
+                        </div>
+                        <div class="skill-level">Good</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Git & Version Control</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 65%;"></div>
+                        </div>
+                        <div class="skill-level">Good</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-exclamation-circle"></i> Critical Skills Gap
+                </div>
+                <div class="missing-skills">
+                    <div class="missing-skills-title">Most Demanded Missing Skills (Appearing in 80%+ jobs)</div>
+                    <div class="missing-skill-item">
+                        <span class="skill-name-missing">TensorFlow / PyTorch Frameworks</span>
+                        <span class="skill-demand">CRITICAL</span>
+                    </div>
+                    <div class="missing-skill-item">
+                        <span class="skill-name-missing">Deep Learning & Neural Networks</span>
+                        <span class="skill-demand">CRITICAL</span>
+                    </div>
+                    <div class="missing-skill-item">
+                        <span class="skill-name-missing">NLP & Transformers Architecture</span>
+                        <span class="skill-demand">HIGH</span>
+                    </div>
+                    <div class="missing-skill-item">
+                        <span class="skill-name-missing">Cloud ML (AWS/GCP/Azure)</span>
+                        <span class="skill-demand">HIGH</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendations">
+                <strong>📊 ATS & Recruiter Readiness Analysis:</strong> Your profile is moderately ATS-friendly (72%). To improve: (1) Add specific ML frameworks (TensorFlow, PyTorch, Scikit-learn) to your resume, (2) Include cloud certifications (AWS ML, GCP ML), (3) Quantify project metrics (accuracy %, F1 scores, dataset sizes), (4) Highlight production-grade experience.
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-fire"></i> Market Demand Insights
+                </div>
+                <p style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 1.5rem;">Skills appearing in the highest percentage of job postings across all 5 target roles:</p>
+                <div class="skill-assessment">
+                    <div class="skill-row">
+                        <div class="skill-name">Deep Learning Frameworks</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-good" style="width: 95%;"></div>
+                        </div>
+                        <div class="skill-level">95% Jobs</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Cloud ML Services</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-good" style="width: 88%;"></div>
+                        </div>
+                        <div class="skill-level">88% Jobs</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">LLMs & Generative AI</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-good" style="width: 82%;"></div>
+                        </div>
+                        <div class="skill-level">82% Jobs</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">MLOps & Model Deployment</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 75%;"></div>
+                        </div>
+                        <div class="skill-level">75% Jobs</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Data Pipeline & Feature Eng</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 72%;"></div>
+                        </div>
+                        <div class="skill-level">72% Jobs</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Docker & Containerization</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 68%;"></div>
+                        </div>
+                        <div class="skill-level">68% Jobs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== TAB 3: CAREER ROADMAP ===== -->
+        <div id="roadmap" class="tab-content">
+            <div class="recommendations">
+                <strong>🎯 Your 30-Day Career Acceleration Plan:</strong> This roadmap prioritizes skills that appear in 80%+ of job postings. By completing this plan, you'll increase your job match from 65% to 85%+. The focus is on deep learning frameworks, cloud platforms, and production-ready experience.
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-calendar"></i> Week-by-Week Learning Plan
+                </div>
+                
+                <div class="roadmap-item">
+                    <div class="roadmap-week">Week 1 (Days 1-7): Deep Learning Foundation</div>
+                    <div class="roadmap-title">Master Neural Networks & Fundamentals</div>
+                    <ul class="roadmap-tasks">
+                        <li>Complete Andrew Ng's Deep Learning Specialization (Course 1) - 15-20 hours</li>
+                        <li>Study neural network architecture: perceptrons, backpropagation, optimization</li>
+                        <li>Build 3 simple neural networks from scratch using NumPy (no frameworks)</li>
+                        <li>Implement forward & backward propagation manually</li>
+                        <li>Practice on MNIST dataset to validate understanding</li>
+                    </ul>
+                </div>
+                
+                <div class="roadmap-item">
+                    <div class="roadmap-week">Week 2 (Days 8-14): TensorFlow & PyTorch Mastery</div>
+                    <div class="roadmap-title">Production Framework Proficiency</div>
+                    <ul class="roadmap-tasks">
+                        <li>Complete TensorFlow 2.x & Keras fundamentals course - 15-18 hours</li>
+                        <li>Build 5 hands-on projects: image classification (CNN), regression, NLP basics</li>
+                        <li>Learn PyTorch basics - understand similarities & differences with TensorFlow</li>
+                        <li>Deploy a simple model using TensorFlow Lite for mobile</li>
+                        <li>Practice with Kaggle competitions - start with beginner datasets</li>
+                    </ul>
+                </div>
+                
+                <div class="roadmap-item">
+                    <div class="roadmap-week">Week 3 (Days 15-21): LLMs & Generative AI</div>
+                    <div class="roadmap-title">Next-Generation AI Skills</div>
+                    <ul class="roadmap-tasks">
+                        <li>Study Transformer architecture deeply - understand attention mechanisms</li>
+                        <li>Work with Hugging Face transformers library - build NLP projects</li>
+                        <li>Build a RAG (Retrieval Augmented Generation) application</li>
+                        <li>Master prompt engineering techniques and best practices</li>
+                        <li>Fine-tune a small LLM (7B or smaller) on custom dataset</li>
+                        <li>Build a chatbot using LangChain or LlamaIndex</li>
+                    </ul>
+                </div>
+                
+                <div class="roadmap-item">
+                    <div class="roadmap-week">Week 4 (Days 22-30): Cloud & MLOps Production Ready</div>
+                    <div class="roadmap-title">Enterprise Deployment & Certification</div>
+                    <ul class="roadmap-tasks">
+                        <li>AWS SageMaker fundamentals or GCP ML Engineer basics - 10-12 hours</li>
+                        <li>Deploy ML models on AWS SageMaker or GCP Vertex AI (2-3 projects)</li>
+                        <li>Learn Docker containerization - create Docker images for ML models</li>
+                        <li>Build CI/CD pipeline for ML using GitHub Actions or GitLab CI</li>
+                        <li>Build end-to-end ML project with cloud deployment & monitoring</li>
+                        <li>Create portfolio: GitHub repo with 3-4 polished projects with documentation</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-certificate"></i> Recommended Certifications (Priority Order)
+                </div>
+                
+                <div class="certification-item">
+                    <span class="rank-badge">🥇 Priority 1:</span>
+                    <span class="cert-priority">Andrew Ng's Deep Learning Specialization</span>
+                    <span class="cert-details">Timeline: 4-6 weeks | Cost: ₹1,500-2,500 (₹250/month Coursera) | Relevance: 95% | Covers: CNNs, RNNs, LSTMs, Hyperparameter tuning</span>
+                </div>
+                
+                <div class="certification-item">
+                    <span class="rank-badge">🥈 Priority 2:</span>
+                    <span class="cert-priority">AWS Certified Machine Learning - Specialty</span>
+                    <span class="cert-details">Timeline: 3-4 weeks prep | Cost: ₹12,000-14,000 exam | Relevance: 88% | Covers: SageMaker, model deployment, AWS ML services</span>
+                </div>
+                
+                <div class="certification-item">
+                    <span class="rank-badge">🥉 Priority 3:</span>
+                    <span class="cert-priority">Hugging Face NLP & Transformers Specialization</span>
+                    <span class="cert-details">Timeline: 2-3 weeks | Cost: Free (Coursera) or ₹2,000-3,000 | Relevance: 82% | Covers: BERT, GPT, fine-tuning, text generation</span>
+                </div>
+                
+                <div class="certification-item">
+                    <span class="rank-badge">📌 Optional:</span>
+                    <span class="cert-priority">Docker & Kubernetes for ML/MLOps</span>
+                    <span class="cert-details">Timeline: 1-2 weeks | Cost: Free/₹1,000-2,000 | Relevance: 75% | Covers: Containerization, orchestration, cloud deployment</span>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-brain"></i> Interview Preparation Priorities
+                </div>
+                <div class="skill-assessment">
+                    <div class="skill-row">
+                        <div class="skill-name">ML Algorithm Explanation</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 60%;"></div>
+                        </div>
+                        <div class="skill-level">Priority 1</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Coding & Data Structures</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 65%;"></div>
+                        </div>
+                        <div class="skill-level">Priority 1</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">ML System Design & Architecture</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 55%;"></div>
+                        </div>
+                        <div class="skill-level">Priority 1</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Case Study & Project Discussion</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-medium" style="width: 58%;"></div>
+                        </div>
+                        <div class="skill-level">Priority 2</div>
+                    </div>
+                    <div class="skill-row">
+                        <div class="skill-name">Behavioral & Domain Knowledge</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress progress-low" style="width: 45%;"></div>
+                        </div>
+                        <div class="skill-level">Priority 2</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-rocket"></i> Action Plan & Career Trajectory
+                </div>
+                <div class="career-section">
+                    <p><strong>📋 Immediate Actions (Next 2 Weeks):</strong></p>
+                    <ul>
+                        <li>Enroll in Andrew Ng's Deep Learning Specialization - complete Course 1 this week</li>
+                        <li>Build 2-3 end-to-end ML projects and push to GitHub with proper README documentation</li>
+                        <li>Update resume with quantifiable metrics: accuracy %, F1 scores, dataset sizes handled, deployment details</li>
+                        <li>Create LinkedIn profile highlighting AI/ML skills and start posting weekly progress updates</li>
+                        <li>Connect with 20-30 professionals from target companies (Flipkart, Unacademy, Freshworks)</li>
+                    </ul>
+                </div>
+                
+                <div class="career-section">
+                    <p><strong>🎯 Target Role Trajectory & Timeline:</strong></p>
+                    <ul>
+                        <li><strong>0-3 Months (Now):</strong> Junior AI/ML Engineer | Target: Flipkart, Unacademy | Focus: Build portfolio, get certified in Deep Learning</li>
+                        <li><strong>3-6 Months:</strong> ML Engineer with specialization | Target: Freshworks, Microsoft, PhonePe | Focus: Get AWS/GCP certification, build production-grade projects</li>
+                        <li><strong>6-12 Months:</strong> Senior ML Engineer / GenAI Specialist | Target: Cloud-native roles, leadership | Focus: MLOps mastery, system design expertise</li>
+                    </ul>
+                </div>
+                
+                <div class="career-section">
+                    <p><strong>📍 Location Strategy & Salary Progression:</strong></p>
+                    <ul>
+                        <li><strong>Bangalore:</strong> 60% of AI/ML roles nationwide | Avg fresher salary: ₹6-7L | Hybrid roles offer 10-20% premium</li>
+                        <li><strong>Hyderabad:</strong> Growing tech hub | Avg fresher salary: ₹5.5-6.5L | Companies: Microsoft, TCS, Amazon</li>
+                        <li><strong>Pune:</strong> Emerging startup ecosystem | Avg fresher salary: ₹5-6L | Companies: PhonePe, Sunbeam, local startups</li>
+                        <li><strong>Remote:</strong> 20-30% of new postings | Offers flexibility, same salary as on-site | Best for work-life balance</li>
+                    </ul>
+                </div>
+                
+                <div class="career-section">
+                    <p><strong>💡 Interview Success Tips:</strong></p>
+                    <ul>
+                        <li>Practice explaining ML algorithms like you're teaching a junior (80% of interviews)</li>
+                        <li>Prepare 3-4 deep case studies: "Walk me through a project you built" - have metrics ready</li>
+                        <li>Code: LeetCode 50-100 medium problems (arrays, strings, graphs - not hard problems)</li>
+                        <li>System Design: Practice designing ML systems (recommendation, classification pipelines)</li>
+                        <li>Ask smart questions about production challenges, tech stack, team structure</li>
+                        <li>Post project work on GitHub - recruiters often review your repos</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-book"></i> Recommended Resources & Learning Paths
+                </div>
+                <div class="career-section">
+                    <p><strong>Free & Paid Resources:</strong></p>
+                    <ul>
+                        <li><strong>Deep Learning:</strong> Andrew Ng (Coursera) - ₹250-400/month | 3Blue1Brown Neural Networks (Free YouTube)</li>
+                        <li><strong>TensorFlow/PyTorch:</strong> Official docs + Jeremy Howard's Fast.ai (Free) | Udacity Nanodegree - ₹5,000/month</li>
+                        <li><strong>LLMs & GenAI:</strong> Hugging Face Course (Free) | OpenAI Cookbook (Free) | DeepLearning.AI Short Courses - $19-39</li>
+                        <li><strong>Cloud ML:</strong> AWS/GCP free tier for hands-on | Official certification courses - ₹2,000-4,000</li>
+                        <li><strong>Interview Prep:</strong> LeetCode (₹200/month) | NVIDIA CUDA fundamentals (Free) | System Design Primer (Free GitHub)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript Functions -->
+    <script>
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const allTabs = document.querySelectorAll('.tab-content');
+            allTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const allButtons = document.querySelectorAll('.tab-btn');
+            allButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.closest('.tab-btn').classList.add('active');
+        }
+        
+        function applyJob(jobTitle) {
+            alert(`Great choice! You're applying for: ${jobTitle}\n\nIn a real scenario, this would redirect to the Indeed job posting.\n\nNext steps:\n1. Review the job description\n2. Update your resume with relevant keywords\n3. Click "Apply" on Indeed\n4. Customize your cover letter\n\nGood luck! 🚀`);
+        }
+        
+        // Add smooth scroll behavior
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('AI Job Search Assistant Dashboard Loaded Successfully ✓');
+            console.log('Dark mode support enabled');
+            console.log('Responsive design activated');
+        });
+    </script>
+</body>
+</html>
